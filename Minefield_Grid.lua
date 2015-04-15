@@ -10,14 +10,6 @@ function widget:GetInfo()
   }
 end
 
---plans:
---when a keybind is pressed, the widget finds the average coordinate point between all selected units to use as a center point to generate a grid; all points will be spaced out the distance of the selected unit's attack range from any other point.
---planned feature is for the widget to identify if any of the final move coordinates may cause friendly fire and relocate the offending grid points.
---planned feature is for the widget to use the last move order in the selected unit's queue as the center point to queue the grid formation.
---planned feature is for the widget to automatically alter line orders to prevent chain explosions.
---possible behavior execution: drawing a line with the line formation tool to bypass the need for recreating math
-	--use geometry formulas to describe a change in vecotr for each segment of the line from point to point.
-
 --tick aoe radius = 352/2 = 176 <= 196
 --roach aoe radius = 384/2 = 192 <= 212
 --skuttle aoe radius = 180 <= 190
