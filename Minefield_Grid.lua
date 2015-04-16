@@ -14,164 +14,50 @@ end
 --roach aoe radius = 384/2 = 192 <= 212
 --skuttle aoe radius = 180 <= 190
 --blastwing aoe radius = 128 <=148
-local tickAOE = 196 --armtick
-local roachAOE = 212 --corroach
-local skuttleAOE = 190	--corsktl
-local blastwingAOE = 148 --blastwing
 
------------------------------------------------------------------
-
-local spGetUnitNearestEnemy = Spring.GetUnitNearestEnemy
-local spGetAllUnits			= Spring.GetAllUnits	--( ) -> nil | unitTable = { [1] = number unitID, ... }
-local spMarkerAddPoint		= Spring.MarkerAddPoint
-local spEcho				= Spring.Echo
-local spInsertUnitCmdDesc   = Spring.InsertUnitCmdDesc
-local spGetUnitAllyTeam     = Spring.GetUnitAllyTeam
-local spValidUnitID         = Spring.ValidUnitID
-local spGetUnitPosition     = Spring.GetUnitPosition
-local spGetUnitDefID        = Spring.GetUnitDefID
-local spGiveOrderToUnit     = Spring.GiveOrderToUnit
-local spGetUnitStates       = Spring.GetUnitStates
-local spGiveOrderToUnitArray= Spring.GiveOrderToUnitArray
-local spValidUnitID			= Spring.ValidUnitID
-local spGetTeamUnits		= Spring.GetTeamUnits  --( number teamID ) -> nil | unitTable = { [1] = number unitID, etc... }
-local spGetMyTeamID			= Spring.GetMyTeamID
-local spGetMyAllyTeamID		= Spring.GetMyAllyTeamID
-local spIsUnitIcon			= Spring.IsUnitIcon
-local spGetSelectedUnits	= Spring.GetSelectedUnits	-- ( ) -> { [1] = unitID, ... }
-local myAllyID 				= Spring.GetMyAllyTeamID()
-local myTeamID 				= Spring.GetMyTeamID()
-local CMD_ATTACK = CMD.ATTACK
-local CMD_MOVE = CMD.MOVE
-local CMD_UNIT_SET_TARGET = 34923
-local CMD_GUARD = CMD.GUARD
-
------------------------------------------------------------------
-
+-- could be improved by making it fetch the radii automatically
+local AOEradii = {
+	UnitDefNames["armtick"].id = 196,
+	UnitDefNames["corroach"].id = 212,
+	UnitDefNames["corsktl"].id = 190, -- Skuttle
+	UnitDefNames["blastwing"].id = 148,
+}
 
 function widget:KeyPress(key, mods, isRepeat)
-	--somehow "D" key id is 100
-local dKey=100
-	--ctrl + alt + D
-	if key==dKey and mods and mods.alt then
-	local selectedUnits = spGetSelectedUnits()
-	local x,y,z
-	local unitAOE
-		for i=1, #selectedUnits do
-			if spGetUnitDefID(selectedUnits[i]) == UnitDefNames["armtick"].id then
-				unitAOE=tickAOE
-			elseif spGetUnitDefID(selectedUnits[i]) == UnitDefNames["corroach"].id then
-				unitAOE=roachAOE
-			elseif spGetUnitDefID(selectedUnits[i]) == UnitDefNames["corsktl"].id then
-				unitAOE=skuttleAOE
-			elseif spGetUnitDefID(selectedUnits[i]) == UnitDefNames["blastwing"].id then
-				unitAOE=blastwingAOE
-			end
-			if unitAOE~=nil then
-				if i==1 then
-					x,y,z = spGetUnitPosition(selectedUnits[i])
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x,0,z}, {"shift"})
-					--Spring.MarkerAddPoint(x,0,z)
-				elseif i==2 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x,0,z+unitAOE}, {"shift"})
-					--Spring.MarkerAddPoint(x,0,z+unitAOE)
-				elseif i==3 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x,0,z-unitAOE}, {"shift"})
-					--Spring.MarkerAddPoint(x,0,z-unitAOE)
-				elseif i==4 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x+unitAOE,0,z}, {"shift"})
-					--Spring.MarkerAddPoint(x+unitAOE,0,z)
-				elseif i==5 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x+unitAOE,0,z+unitAOE}, {"shift"})
-					--Spring.MarkerAddPoint(x+unitAOE,0,z+unitAOE)
-				elseif i==6 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x+unitAOE,0,z-unitAOE}, {"shift"})
-					--Spring.MarkerAddPoint(x+unitAOE,0,z-unitAOE)
-				elseif i==7 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x-unitAOE,0,z}, {"shift"})
-					--Spring.MarkerAddPoint(x-unitAOE,0,z)
-				elseif i==8 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x-unitAOE,0,z+unitAOE}, {"shift"})
-					--Spring.MarkerAddPoint(x-unitAOE,0,z+unitAOE)
-				elseif i==9 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x-unitAOE,0,z-unitAOE}, {"shift"})
-					--Spring.MarkerAddPoint(x-unitAOE,0,z-unitAOE)
-				elseif i==10 then --
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x-(unitAOE*2),0,z+(unitAOE*2)}, {"shift"})
-					--Spring.MarkerAddPoint(x-(unitAOE*2),0,z+(unitAOE*2))
-				elseif i==11 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x-(unitAOE*2),0,z+(unitAOE)}, {"shift"})
-					--Spring.MarkerAddPoint(x-(unitAOE*2),0,z+(unitAOE))
-				elseif i==12 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x-(unitAOE*2),0,z}, {"shift"})
-					--Spring.MarkerAddPoint(x-(unitAOE*2),0,z)
-				elseif i==13 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x-(unitAOE*2),0,z-(unitAOE)}, {"shift"})
-					--Spring.MarkerAddPoint(x-(unitAOE*2),0,z-(unitAOE))
-				elseif i==14 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x-(unitAOE*2),0,z-(unitAOE*2)}, {"shift"})
-					--Spring.MarkerAddPoint(x-(unitAOE*2),0,z-(unitAOE*2))
-				elseif i==15 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x-unitAOE,0,z-(unitAOE*2)}, {"shift"})
-					--Spring.MarkerAddPoint(x-unitAOE,0,z-(unitAOE*2))
-				elseif i==16 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x-unitAOE,0,z+(unitAOE*2)}, {"shift"})
-					--Spring.MarkerAddPoint(x-unitAOE,0,z+(unitAOE*2))
-				elseif i==17 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x,0,z+(unitAOE*2)}, {"shift"})
-					--Spring.MarkerAddPoint(x,0,z+(unitAOE*2))
-				elseif i==18 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x,0,z-(unitAOE*2)}, {"shift"})
-					--Spring.MarkerAddPoint(x,0,z-(unitAOE*2))
-				elseif i==19 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x+unitAOE,0,z+(unitAOE*2)}, {"shift"})
-					--Spring.MarkerAddPoint(x+unitAOE,0,z+(unitAOE*2))
-				elseif i==20 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x+unitAOE,0,z-(unitAOE*2)}, {"shift"})
-					--Spring.MarkerAddPoint(x+unitAOE,0,z-(unitAOE*2))
-				elseif i==21 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x+(unitAOE*2),0,z+(unitAOE*2)}, {"shift"})
-					--Spring.MarkerAddPoint(x+(unitAOE*2),0,z+(unitAOE*2))
-				elseif i==22 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x+(unitAOE*2),0,z+(unitAOE)}, {"shift"})
-					--Spring.MarkerAddPoint(x+(unitAOE*2),0,z+(unitAOE))
-				elseif i==23 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x+(unitAOE*2),0,z}, {"shift"})
-					--Spring.MarkerAddPoint(x+(unitAOE*2),0,z)
-				elseif i==24 then
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x+(unitAOE*2),0,z-(unitAOE)}, {"shift"})
-					--Spring.MarkerAddPoint(x+(unitAOE*2),0,z-(unitAOE))
-				elseif i==25 then --
-					spGiveOrderToUnit(selectedUnits[i], CMD_MOVE, {x+(unitAOE*2),0,z-(unitAOE*2)}, {"shift"})
-					--Spring.MarkerAddPoint(x+(unitAOE*2),0,z-(unitAOE*2))
-				end
-			end
+
+	local dKey = 100 -- ASCII code for D
+
+	if key ~= dKey or not (mods and mods.alt) then return end -- alt + d
+
+	local selectedUnits = Spring.GetSelectedUnits()
+	if not selectedUnits or (#selectedUnits == 0) then return end -- no need to process empty groups
+
+	local groupDefID = Spring.GetUnitDefID(selectedUnits[1]) -- gebork for mixed selection (but so was the original code)
+	local x,y,z = Spring.GetUnitPosition(selectedUnits[1])
+	local unitAOE = AOEradii[groupDefID]
+	if not unitAOE then return end -- unsupported unit type
+
+	local modifierKeys -- this gets passed each time so no need to recreate the table
+	if mods.shift then modifierKeys = {"shift"} -- if the user wants shift, do so
+	else modifierKeys = 0 end -- the same as an empty table for the purpose of GiveOrderToUnit
+
+	-- for iterated outward spiral
+	local offset = {0, 0}
+	local delta_offset = {1, 0}
+
+	for i=1, #selectedUnits do
+		Spring.GiveOrderToUnit(selectedUnits[i], CMD.MOVE, {x + offset[1]*unitAOE, 0, z + offset[2]*unitAOE}, modifierKeys)
+
+		-- spiral pattern
+		offset[1] = offset[1] + delta_offset[1]
+		offset[2] = offset[2] + delta_offset[2]
+
+		-- spiral corner
+		if ((offset[1] >= 0) and ((offset[1] == 1-offset[2]) or (offset[1] == offset[2])))
+		or ((offset[1]  < 0) and -offset[1] == math.abs(offset[2])) then
+			local swap_buffer = delta_offset[1]
+			delta_offset[1] = -delta_offset[2]
+			delta_offset[2] = swap_buffer
 		end
 	end
 end
-
-
-
---[[
-
-local origin = {X=0,Y=0}
-origin.X = originX
-origin.Y = originY
-local distance = 128
-local points = {}
-local currentcolumn = -10
-local currentrow = -10
-local currentX = origin.X + currentcolumn*distance
-local currentY = origin.Y + currentrow*distance
-repeat
-points[#points+1] = {X=currentX,Y=currentY}
-currentX = currentX + distance
-currentcolumn = currentcolumn + 1
-if currentcolumn == 10 then
-currentcolumn = -10
-currentY = currentY + distance
-currentrow = currentrow + 1
-end
-until currentcolumn = 10, currentrow = 10 -- this makes a 20X20 grid
-
-]]
